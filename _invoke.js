@@ -8,14 +8,15 @@
 const mman_open     = 'open';
 const mman_closed   = 'closed';
 const mman_hidden   = 'hidden';
-const mman_AllTars  = '.nav-subcontainer';
+const mman_keepIdx  = false;
+const mman_AllTargs = '.nav-subcontainer';
 const mman_targBody = '.nav-sublist';
 const mman_targHead = '.nav-subheader';
-const mman_2Init    = '.collapse-header:not(.start-open)';
+const mman_2Init    = '.nav-subcontainer:not(.start-open)';
 
                     // All scripts in the mp namespace to avoid collisions.     *
 let mp = {
-  menuManager: new mpc_menuManager(mman_open, mman_closed,mman_hidden),
+  menuManager: new mpc_menuManager(mman_open, mman_closed, mman_hidden, mman_keepIdx),
 // ...
 };
                     // The script has two functions to set up accordion menus   *

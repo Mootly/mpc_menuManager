@@ -1,6 +1,10 @@
 # MoosePlum Menu Manager
 
-This is collection of functions to manage menu operations on pages. It handles accordion menus and hiding menus behind icons for mobile.
+This is collection of functions to manage menu operations on pages. It does the following:
+
+- Manages accordion menus for both mouse and focus events.
+- Manages menu icon operations for mobile, or for any icon+block relationship.
+- Flags the current link in a menu so it can be styled accordingly.
 
 ## Dependencies
 
@@ -46,31 +50,73 @@ The HTML should follow one or both of these patterns.
 
 ### Assumptions
 
-This script assumes a far amount.
+This script assumes a fair amount.
 
 This script does almost no error checking. In case of errors, the script will usually just do nothing, but not always. It does not correct for typos in templates or other template errors.
+
+For the current page to be flagged in a menu, the menu must be inside a `<nav>` block. The script will look for a link URL that matches the current page URL in the menu. Upon a match, it will assign a class to the parent of that link, normally and `<li>`. The default class is `.active`.
+
+For identifying the current page,, this script assumes default file names fit the following regex pattern: `/((index)|(default))\.\w{2,4}/`. It also only looks for the first match. Having multiple menu items flagged as the current page looks wrong, even if it does occur in a menu multiple times.
 
 Menus are written in a nested list format. There is a `<span>` or other element defining a header as an immediately sibling of each submenu. The containing list item, header and nested list body will have consistent class names assigned to them.
 
 The submenu headers will have a class assigned to them that allows them to toggle icons or other indicators between open and closed states. The defaults are `.open` and `.closed`. The script assigns a tab index of zero to elements it needs to track. Anchor tags should not be used to trigger the script.
 
-The submenu with have a class to toggle the hidden state. The default is `.hidden`.
+The submenu will have a class to toggle the hidden state. The default is `.hidden`.
+
+The script assumes you are using the same classes for open, closed, and hidden for all menu items. Otherwise you will need to instantiate multiple times, one for each class set. If you are using different classes to do the same thing in different locations, you should also refactor your code.
 
 If all menus have the same class names for parent list item, header, and submenu to toggle, the `init_menu()` method only needs to be invoked once for the entire page.
 
-For mobile menus, toggle buttons are associated with toggled blocks. They do not need to be adjancent ot one another, but must have IDs by which listeners can be assigned.
+For mobile menus, toggle buttons are associated with toggled blocks. They do not need to be adjancent ot one another, but must have IDs by which listeners can be assigned. There is no default for these IDs, so they must be passed for the method to work.
 
 The `init_mobile()` method can be used to set a listener to hide and show any toggle button and block combo.
+
+### Recommended HTML Code
+
+```html
+<nav class="page-nav" id="menu-id" aria-labelledby="page-menu-control">
+  <div id="menu-id-toggle" class="mobile-only closed">
+    <span role="button" id="menu-id-control" aria-hidden="true">Navigation Description</span>
+  </div>
+  <div id="menu-id-body" class="mobile-hidden">
+    <ul id="menu-id-list">
+    <!-- keep non-collapsing links up top -->
+      <li class="top-level"><a href="#">Important Link</a></li>
+      <li class="top-level"><a href="#">Important Link</a></li>
+      <li class="nav-subcontaner" tabindex="0">
+        <span class="nav-subheader start-open">Submenu Header</span>
+        <ul class="nav-sublist">
+          <li><a href="#">Link</a></li>
+          <li><a href="#">Link</a></li>
+          <li><a href="#">Link</a></li>
+        </ul>
+      </li>
+      <li class="nav-subcontaner" tabindex="0">
+        <span class="nav-subheader">Submenu Header</span>
+        <ul class="nav-sublist">
+          <li><a href="#">Link</a></li>
+          <li><a href="#">Link</a></li>
+          <li><a href="#">Link</a></li>
+        </ul>
+      </li>
+      ⋮
+    </ul>
+  </div>
+</nav>
+```
 
 ### Parameters
 
 #### Constructor
 
-| name    | type   | default  | description                     |
-| ------- | ------ | -------- | ------------------------------- |
-| pOpen   | string | 'open'   | Class to flag header as open.   |
-| pClosed | string | 'closed' | Class to flag header as closed. |
-| pHidden | string | 'hidden' | Class to hide menu.             |
+| name       | type    | default  | description                                                  |
+| ---------- | ------- | -------- | ------------------------------------------------------------ |
+| pOpen      | string  | 'open'   | Class to flag header as open.                                |
+| pClosed    | string  | 'closed' | Class to flag header as closed.                              |
+| pHidden    | string  | 'hidden' | Class to hide menu.                                          |
+| pActive    | string  | 'active' | Class to flag current page in menu.                          |
+| pKeepIndex | boolean | false    | Whether to keep default filenames for matching current page. |
 
 #### init_menu
 
@@ -87,8 +133,8 @@ If you don't specify which containers should start collapsed, the code defaults 
 
 | name     | type   | default  | description                                         |
 | -------- | ------ | -------- | --------------------------------------------------- |
-| pBody    | string | 'open'   | ID of the element to collapse.                      |
-| pTrigger | string | 'closed' | ID of the toggle button for the collapsing element. |
+| pBody    | string | null     | ID of the element to collapse.                      |
+| pTrigger | string | null     | ID of the toggle button for the collapsing element. |
 
 ### Coding Example
 
@@ -98,13 +144,15 @@ Use the `mp` namespace to help avoid collisions.
 const mman_open     = 'open';
 const mman_closed   = 'closed';
 const mman_hidden   = 'hidden';
-const mman_AllTars  = '.nav-subcontainer';
+const mman_active   = 'active';
+const mman_keepIdx  = false;
+const mman_AllTargs = '.nav-subcontainer';
 const mman_targBody = '.nav-sublist';
 const mman_targHead = '.nav-subheader';
-const mman_2Init    = '.collapse-header:not(.start-open)';
+const mman_2Init    = '.nav-subcontainer:not(.start-open)';
 
 let mp = {
-  menuManager: new mpc_menuManager(mman_open, mman_closed,mman_hidden),
+  menuManager: new mpc_menuManager(mman_open, mman_closed, mman_hidden, mman_active, mman_keepIdx),
   ⋮
 };
 ```
