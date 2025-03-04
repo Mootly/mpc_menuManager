@@ -115,6 +115,7 @@ The `init_mobile()` method can be used to set a listener to hide and show any to
 | pOpen      | string  | 'open'   | Class to flag header as open.                                |
 | pClosed    | string  | 'closed' | Class to flag header as closed.                              |
 | pHidden    | string  | 'hidden' | Class to hide menu.                                          |
+| pVisible   | string  | 'show'   | Class to show menu.                                          |
 | pActive    | string  | 'active' | Class to flag current page in menu.                          |
 | pKeepIndex | boolean | false    | Whether to keep default filenames for matching current page. |
 
@@ -131,10 +132,18 @@ If you don't specify which containers should start collapsed, the code defaults 
 
 #### init_mobile
 
-| name     | type   | default  | description                                         |
-| -------- | ------ | -------- | --------------------------------------------------- |
-| pBody    | string | null     | ID of the element to collapse.                      |
-| pTrigger | string | null     | ID of the toggle button for the collapsing element. |
+| name       | type    | default | description                                         |
+| ---------- | ------- | ------- | --------------------------------------------------- |
+| pBody      | string  | null    | ID of the element to collapse.                      |
+| pTrigger   | string  | null    | ID of the toggle button for the collapsing element. |
+| pAddMobi   | boolean | true    | Add prefix of "mobile-" to mobile menu controls.    |
+| pContainer | string  | null    | ID of the container of the above two, if needed.    |
+
+A toggle icon and the block it affects do not have to be adjacent, or even in the same parent block.
+
+The `pAddMobi` parameter allows you to specific whether or not to prefix mobile menu blocks. Setting this to true prefixes the `pVisible` and `pHidden` classes with 'mobile-'. This is to allow some flexibility in how a mobile block is hidden. For example, you might have claases of  "mobile hidden" or "mobile-hidden". The former requires more CSS hoop jumping, specifically some `:not(.mobile)` class to avoid contention, but avoids redundant or overlapping classes. The latter is simpler CSS at the cost of some class redundancy.
+
+If there is a parent block that should have open and closed classes set, it can be specified with `pContainer`. Otherwise it is safe to omit.
 
 ### Coding Example
 
@@ -144,15 +153,20 @@ Use the `mp` namespace to help avoid collisions.
 const mman_open     = 'open';
 const mman_closed   = 'closed';
 const mman_hidden   = 'hidden';
+const mman_visible  = 'show';
 const mman_active   = 'active';
 const mman_keepIdx  = false;
 const mman_AllTargs = '.nav-subcontainer';
 const mman_targBody = '.nav-sublist';
 const mman_targHead = '.nav-subheader';
 const mman_2Init    = '.nav-subcontainer:not(.start-open)';
+const mman_tBodyID  = '#main-menu-toggle';
+const mman_tHeadID  = '#main-menu';
+const mman_addMobi  = true;
+const mman_container= null;
 
 let mp = {
-  menuManager: new mpc_menuManager(mman_open, mman_closed, mman_hidden, mman_active, mman_keepIdx),
+  menuManager: new mpc_menuManager(mman_open, mman_closed, mman_hidden, mman_visible, mman_active, mman_keepIdx),
   ⋮
 };
 ```
@@ -161,5 +175,5 @@ Calling the init functions creates listeners. They can be called multiple times 
 
 ```js
 mp.menuManager.init_menu(mman_AllTargs, mman_targBody, mman_targHead, mman_2Init);
-mp.menuManager.init_mobile(mman_targBody, mman_targHead);
+mp.menuManager.init_mobile(mman_tBodyID, mman_tHeadID, mman_addMobi, mman_container);
 ```

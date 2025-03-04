@@ -23,6 +23,7 @@
  * pOpen      | 'open'    | Class to flag header as open.
  * pClosed    | 'closed'  | Class to flag header as closed.
  * pHidden    | 'hidden'  | Class to hide menu.
+ * pVisible   | 'show'    | Class to show menu.
  * pActive    | 'active'  | Class to flag current page in menu.
  * pKeepIndex | false     | Whether to keep default filenames when comparing
  *            |           | filenames to links to matche active page.
@@ -42,10 +43,11 @@
  *
  * ### init_mobile Method Arguments
  *
- * name     | default  | description
- * -------- | -------- | ---------------------------------------------------
- * pBody    | null     | ID of the element to collapse.
- * pTrigger | mull     | ID of the toggle button for the collapsing element.
+ * name       | default  | description
+ * ---------- | -------- | ---------------------------------------------------
+ * pBody      | null     | ID of the element to collapse.
+ * pTrigger   | mull     | ID of the toggle button for the collapsing element.
+ * pContainer | mull     | ID of the container of the two above, if needed.
  *
  * --- Revision History ------------------------------------------------------- *
  * 2025-02-27 | New TypeScript-compliant version.
@@ -57,13 +59,16 @@ class mpc_menuManager {
   // - Check to exclude index/default files from pathing      *
   // These are set here to enforce consistent coding.         *
   // -------------------------------------------------------- *
-  constructor(pOpen = 'open', pClosed = 'closed', pHidden = 'hidden', pActive = 'active', pKeepIndex = false) {
+  constructor(pOpen = 'open', pClosed = 'closed', pHidden = 'hidden', pVisible = 'show', pActive = 'active', pKeepIndex = false) {
     // Set some listeners up front.                             *
     // Add click toggle to avoid conflict with focus events.    *
     this.mouseTrigger = false;
     this.openClass = pOpen;
     this.closedClass = pClosed;
     this.hiddenClass = pHidden;
+    this.visibleClass = pVisible;
+    this.hiddenMobi = 'mobile-' + pHidden;
+    this.visibleMobi = 'mobile-' + pVisible;
     this.activeClass = pActive;
     this.keepTheIndex = pKeepIndex;
     window.addEventListener('mousedown', () => { this.mouseTrigger = true; });
@@ -74,33 +79,51 @@ class mpc_menuManager {
   // Accept: open, close, toggle                              *
   // Assume element definitions were set up in init methods.  *
   // -------------------------------------------------------- *
-  state_change(pState = null, pElement = null) {
-    let elHeader = pElement.querySelector(this.opTrigger);
-    let elBody = pElement.querySelector(this.opBody);
+  state_change(pState = null, pType = null, pElement = null, pTrigger = null, pBody = null) {
+    let elContainer = pElement;
+    let elHeader = pTrigger;
+    let elBody = pBody;
     let oldState = '';
     let newState = '';
+    let hiddenState = '';
+    let visibleState = '';
+    if (!pTrigger) {
+      elHeader = elContainer.querySelector(this.opTrigger);
+      elBody = elContainer.querySelector(this.opBody);
+    }
+    if (pType == 'mobile') {
+      hiddenState = this.hiddenMobi;
+      visibleState = this.visibleMobi;
+    }
+    else {
+      hiddenState = this.hiddenClass;
+      visibleState = this.visibleClass;
+    }
     if (pState == 'toggle') {
-      pElement.classList.toggle(this.openClass);
-      pElement.classList.toggle(this.closedClass);
-      elHeader.classList.toggle(this.openClass);
-      elHeader.classList.toggle(this.closedClass);
-      elBody.classList.toggle(this.hiddenClass);
+      elContainer?.classList.toggle(this.openClass);
+      elContainer?.classList.toggle(this.closedClass);
+      elHeader?.classList.toggle(this.openClass);
+      elHeader?.classList.toggle(this.closedClass);
+      elBody?.classList.toggle(visibleState);
+      elBody?.classList.toggle(hiddenState);
     }
     else if (pState) {
       if (pState == 'open') {
         oldState = this.closedClass;
         newState = this.openClass;
-        elBody.classList.remove(this.hiddenClass);
+        elBody?.classList.add(visibleState);
+        elBody?.classList.remove(hiddenState);
       }
       else {
         oldState = this.openClass;
         newState = this.closedClass;
-        elBody.classList.add(this.hiddenClass);
+        elBody?.classList.remove(visibleState);
+        elBody?.classList.add(hiddenState);
       }
-      pElement.classList.add(newState);
-      pElement.classList.remove(oldState);
-      elHeader.classList.add(newState);
-      elHeader.classList.remove(oldState);
+      elContainer?.classList.add(newState);
+      elContainer?.classList.remove(oldState);
+      elHeader?.classList.add(newState);
+      elHeader?.classList.remove(oldState);
     }
   }
   // ******************************************************** *
@@ -146,14 +169,14 @@ class mpc_menuManager {
         el.setAttribute('tabindex', '0');
         el.addEventListener('click', (ev) => {
           let elObj = ev.target.parentNode;
-          this.state_change('toggle', elObj);
+          this.state_change('toggle', 'submenu', elObj);
         });
         el.addEventListener('focusin', (ev) => {
           if (!this.mouseTrigger) {
             let elObj = (!(ev.target.matches(pAllContainers)))
               ? ev.target.closest(pAllContainers)
               : ev.target;
-            this.state_change('open', elObj);
+            this.state_change('open', 'submenu', elObj);
           }
         });
         el.addEventListener('focusout', (ev) => {
@@ -162,7 +185,7 @@ class mpc_menuManager {
             let elObj = (!(ev.target.matches(pAllContainers)))
               ? ev.target.closest(pAllContainers)
               : ev.target;
-            this.state_change('close', elObj);
+            this.state_change('close', 'submenu', elObj);
           }
         });
       });
@@ -177,10 +200,25 @@ class mpc_menuManager {
   // - Element to hide/unhide                                 *
   // - Trigger icon or element.                               *
   // -------------------------------------------------------- *
-  init_mobile(pBody = '', pTrigger = '') {
+  init_mobile(pBody = null, pTrigger = null, pAddMobile = true, pContainer = null) {
     window.addEventListener('load', () => {
-      this.mobiTrigger = document.querySelector(pTrigger);
-      this.mobiMenu = document.querySelector(pBody);
+      let useMobile = pAddMobile ? 'mobile' : 'menu';
+      let elTrigger = pTrigger ? document.querySelector(pTrigger) : null;
+      let elBody = pBody ? document.querySelector(pBody) : null;
+      let elContainer = pContainer ? document.querySelector(pContainer) : null;
+      elTrigger?.addEventListener('click', () => {
+        this.state_change('toggle', 'mobile', elContainer, elTrigger, elBody);
+      });
+      elBody.addEventListener('focusin', () => {
+        if (!this.mouseTrigger) {
+          this.state_change('open', useMobile, elContainer, elTrigger, elBody);
+        }
+      });
+      elBody.addEventListener('focusout', () => {
+        if (!this.mouseTrigger) {
+          this.state_change('close', useMobile, elContainer, elTrigger, elBody);
+        }
+      });
     });
   }
 }
