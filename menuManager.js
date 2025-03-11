@@ -1,8 +1,8 @@
 /** --- Menu Visibility Manager ----------------------------------------------- *
- * mpc_menuManager 1.0.0
+ * mpc_menuManager 1.0.1
  * @copyright 2025 Mootly Obviate -- See /LICENSE.md
  * @license   MIT
- * @version   1.0.0
+ * @version   1.0.1
  * ---------------------------------------------------------------------------- *
  *  Automates accordion menus and hiding menus under icons for mobile devices.
  *  For usability reasons, menus should start open then by script.
@@ -50,6 +50,8 @@
  * pContainer | mull     | ID of the container of the two above, if needed.
  *
  * --- Revision History ------------------------------------------------------- *
+ * 2025-03-10 | Changed Load to DOMContentLoaded handler to avoid edge cases.
+ *            | Note: This might create different edge cases for this script.
  * 2025-02-27 | New TypeScript-compliant version.
  * ---------------------------------------------------------------------------- */
 class mpc_menuManager {
@@ -141,11 +143,11 @@ class mpc_menuManager {
     this.opTrigger = pHeader;
     this.opBody = pBody;
     this.op2Init = pInitContainers ?? pAllContainers;
-    window.addEventListener('load', () => {
+    window.addEventListener('DOMContentLoaded', () => {
       this.menuElems2Close = document.querySelectorAll(this.op2Init);
       this.menuElemsAll = document.querySelectorAll(this.opBlock);
-                    // Flag current page in side menu                           *
-                    // Strip default index cases                                *
+      // Flag current page in side menu                           *
+      // Strip default index cases                                *
       const defName = '/((index)|(default))\.\w{2,4}/g';
       let tParseLoc = ((this.keepTheIndex) || (location.pathname.search(defName) == -1))
         ? location.pathname
@@ -191,17 +193,17 @@ class mpc_menuManager {
       });
     });
   }
-                    // ******************************************************** *
-                    // Initialize Mobile Menu Triggers method                   *
-                    // Set listeners for mobile menu triggers.                  *
-                    // Can be used for any icon + collapser.                    *
-                    // Each must be set individually using this method.         *
-                    // Accepts CSS selectors (assume IDs) for:                  *
-                    // - Element to hide/unhide                                 *
-                    // - Trigger icon or element.                               *
-                    // -------------------------------------------------------- *
+  // ******************************************************** *
+  // Initialize Mobile Menu Triggers method                   *
+  // Set listeners for mobile menu triggers.                  *
+  // Can be used for any icon + collapser.                    *
+  // Each must be set individually using this method.         *
+  // Accepts CSS selectors (assume IDs) for:                  *
+  // - Element to hide/unhide                                 *
+  // - Trigger icon or element.                               *
+  // -------------------------------------------------------- *
   init_mobile(pBody = null, pTrigger = null, pAddMobile = true, pContainer = null) {
-    window.addEventListener('load', () => {
+    window.addEventListener('DOMContentLoaded', () => {
       let useMobile = pAddMobile ? 'mobile' : 'menu';
       let elTrigger = pTrigger ? document.querySelector(pTrigger) : null;
       let elBody = pBody ? document.querySelector(pBody) : null;

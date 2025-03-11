@@ -1,8 +1,8 @@
 /** --- Menu Visibility Manager ----------------------------------------------- *
- * mpc_menuManager 1.0.0
+ * mpc_menuManager 1.0.1
  * @copyright 2025 Mootly Obviate -- See /LICENSE.md
  * @license   MIT
- * @version   1.0.0
+ * @version   1.0.1
  * ---------------------------------------------------------------------------- *
  *  Automates accordion menus and hiding menus under icons for mobile devices.
  *  For usability reasons, menus should start open then by script.
@@ -50,6 +50,8 @@
  * pContainer | mull     | ID of the container of the two above, if needed.
  *
  * --- Revision History ------------------------------------------------------- *
+ * 2025-03-10 | Changed Load to DOMContentLoaded handler to avoid edge cases.
+ *            | Note: This might create different edge cases for this script.
  * 2025-02-27 | New TypeScript-compliant version.
  * ---------------------------------------------------------------------------- */
 class mpc_menuManager {
@@ -171,7 +173,7 @@ class mpc_menuManager {
     this.opTrigger  = pHeader;
     this.opBody     = pBody;
     this.op2Init    = pInitContainers ?? pAllContainers;
-    window.addEventListener('load', () => {
+    window.addEventListener('DOMContentLoaded', () => {
       this.menuElems2Close   = document.querySelectorAll(this.op2Init);
       this.menuElemsAll     = document.querySelectorAll(this.opBlock);
                     // Flag current page in side menu                           *
@@ -234,7 +236,7 @@ class mpc_menuManager {
     pAddMobile      : boolean           = true,
     pContainer      : string            = null
   ) {
-    window.addEventListener('load', () => {
+    window.addEventListener('DOMContentLoaded', () => {
       let useMobile   = pAddMobile  ? 'mobile' : 'menu';
       let elTrigger   = pTrigger    ? <HTMLElement>document.querySelector(pTrigger)   : null;
       let elBody      = pBody       ? <HTMLElement>document.querySelector(pBody)      : null;
