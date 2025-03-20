@@ -1,6 +1,6 @@
 # MoosePlum JavaScript Menu Manager
 
-## MoosePlum Top Men Manager
+## MoosePlum Top Menu Manager
 
 Copyright (c) 2025 Mootly Obviate
 
