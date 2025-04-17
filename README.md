@@ -1,5 +1,7 @@
 # MoosePlum Menu Manager
 
+Repo: [Mootly/mpc_menuManager](https://github.com/Mootly/mpc_menuManager)
+
 This is collection of functions to manage menu operations on pages. It does the following:
 
 - Manages accordion menus for both mouse and focus events.
@@ -16,6 +18,7 @@ The files in this set are as follows:
 
 | path                   | description                                        |
 | ---------------------- | -------------------------------------------------- |
+| CHANGELOG.md           | The changelog for this page layout utility.        |
 | LICENSE.md             | License notice ( [MIT](https://mit-license.org) ). |
 | README.md              | This document.                                     |
 | menuMananer.ts         | The class definition in TypeScript.                |
