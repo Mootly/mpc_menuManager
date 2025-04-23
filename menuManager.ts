@@ -1,8 +1,8 @@
 /** --- Menu Visibility Manager ----------------------------------------------- *
- * mpc_menuManager 1.0.1
+ * mpc_menuManager 1.0.2
  * @copyright 2025 Mootly Obviate -- See /LICENSE.md
  * @license   MIT
- * @version   1.0.1
+ * @version   1.0.2
  * ---------------------------------------------------------------------------- *
  *  Automates accordion menus and hiding menus under icons for mobile devices.
  *  For usability reasons, menus should start open then by script.
@@ -50,6 +50,7 @@
  * pContainer | mull     | ID of the container of the two above, if needed.
  *
  * --- Revision History ------------------------------------------------------- *
+ * 2025-04-23 | Added exit when no submenus to process.
  * 2025-03-10 | Changed Load to DOMContentLoaded handler to avoid edge cases.
  *            | Note: This might create different edge cases for this script.
  * 2025-02-27 | New TypeScript-compliant version.
@@ -174,7 +175,7 @@ class mpc_menuManager {
     this.opBody     = pBody;
     this.op2Init    = pInitContainers ?? pAllContainers;
     window.addEventListener('DOMContentLoaded', () => {
-      this.menuElems2Close   = document.querySelectorAll(this.op2Init);
+      this.menuElems2Close  = document.querySelectorAll(this.op2Init);
       this.menuElemsAll     = document.querySelectorAll(this.opBlock);
                     // Flag current page in side menu                           *
                     // Strip default index cases                                *
@@ -182,7 +183,9 @@ class mpc_menuManager {
       let tParseLoc = ((this.keepTheIndex) || (location.pathname.search(defName) == -1))
                     ? location.pathname
                     : location.pathname.slice(0, location.pathname.search(defName));
-      let tCurrMenu = this.menuElemsAll[0].closest('nav');
+                    // if no menu, exit to prevent console clutter              *
+      if (this.menuElemsAll.length < 1) return;
+      let tCurrMenu = this.menuElemsAll[0] ? this.menuElemsAll[0].closest('nav') : null;
       let tTargLink = tCurrMenu.querySelector('[href="'+tParseLoc+'"]');
       if (tTargLink) {tTargLink.parentElement.classList.add(this.activeClass);}
                     // close menu sections on page load                         *
@@ -244,10 +247,10 @@ class mpc_menuManager {
       elTrigger?.addEventListener('click', () => {
         this.state_change('toggle', 'mobile', elContainer, elTrigger, elBody);
       });
-      elBody.addEventListener('focusin', () => {
+      elBody?.addEventListener('focusin', () => {
         if (!this.mouseTrigger) { this.state_change('open', useMobile, elContainer, elTrigger, elBody);  }
       });
-      elBody.addEventListener('focusout', () => {
+      elBody?.addEventListener('focusout', () => {
         if (!this.mouseTrigger) { this.state_change('close', useMobile, elContainer, elTrigger, elBody); }
       });
     });

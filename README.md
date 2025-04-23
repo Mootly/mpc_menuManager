@@ -77,10 +77,13 @@ The `init_mobile()` method can be used to set a listener to hide and show any to
 
 ### Recommended HTML Code
 
+Toggle button has `tabindex` turned off since it serves no purpose in keyboard navigation.
+
 ```html
 <nav class="page-nav" id="menu-id" aria-labelledby="page-menu-control">
   <div id="menu-id-toggle" class="mobile-only closed">
-    <span role="button" id="menu-id-control" aria-hidden="true">Navigation Description</span>
+    <span role="button" id="menu-id-control"
+      aria-hidden="true" tabindex="-1">Navigation Description</span>
   </div>
   <div id="menu-id-body" class="mobile-hidden">
     <ul id="menu-id-list">

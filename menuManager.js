@@ -1,8 +1,8 @@
 /** --- Menu Visibility Manager ----------------------------------------------- *
- * mpc_menuManager 1.0.1
+ * mpc_menuManager 1.0.2
  * @copyright 2025 Mootly Obviate -- See /LICENSE.md
  * @license   MIT
- * @version   1.0.1
+ * @version   1.0.2
  * ---------------------------------------------------------------------------- *
  *  Automates accordion menus and hiding menus under icons for mobile devices.
  *  For usability reasons, menus should start open then by script.
@@ -50,20 +50,21 @@
  * pContainer | mull     | ID of the container of the two above, if needed.
  *
  * --- Revision History ------------------------------------------------------- *
+ * 2025-04-23 | Added exit when no submenus to process.
  * 2025-03-10 | Changed Load to DOMContentLoaded handler to avoid edge cases.
  *            | Note: This might create different edge cases for this script.
  * 2025-02-27 | New TypeScript-compliant version.
  * ---------------------------------------------------------------------------- */
 class mpc_menuManager {
-                    // ******************************************************** *
-                    // Constructor                                              *
-                    // - Init classes we will be using                          *
-                    // - Check to exclude index/default files from pathing      *
-                    // These are set here to enforce consistent coding.         *
-                    // -------------------------------------------------------- *
+  // ******************************************************** *
+  // Constructor                                              *
+  // - Init classes we will be using                          *
+  // - Check to exclude index/default files from pathing      *
+  // These are set here to enforce consistent coding.         *
+  // -------------------------------------------------------- *
   constructor(pOpen = 'open', pClosed = 'closed', pHidden = 'hidden', pVisible = 'show', pActive = 'active', pKeepIndex = false) {
-                    // Set some listeners up front.                             *
-                    // Add click toggle to avoid conflict with focus events.    *
+    // Set some listeners up front.                             *
+    // Add click toggle to avoid conflict with focus events.    *
     this.mouseTrigger = false;
     this.openClass = pOpen;
     this.closedClass = pClosed;
@@ -76,11 +77,11 @@ class mpc_menuManager {
     window.addEventListener('mousedown', () => { this.mouseTrigger = true; });
     window.addEventListener('mouseup', () => { this.mouseTrigger = false; });
   }
-                    // ******************************************************** *
-                    // State Change method handles the flip flip                *
-                    // Accept: open, close, toggle                              *
-                    // Assume element definitions were set up in init methods.  *
-                    // -------------------------------------------------------- *
+  // ******************************************************** *
+  // State Change method handles the flip flip                *
+  // Accept: open, close, toggle                              *
+  // Assume element definitions were set up in init methods.  *
+  // -------------------------------------------------------- *
   state_change(pState = null, pType = null, pElement = null, pTrigger = null, pBody = null) {
     let elContainer = pElement;
     let elHeader = pTrigger;
@@ -128,16 +129,16 @@ class mpc_menuManager {
       elHeader?.classList.remove(oldState);
     }
   }
-                    // ******************************************************** *
-                    // Initialize Menu method                                   *
-                    // Set listeners for accordion menu sections.               *
-                    // Accepts CSS selectors for:                               *
-                    // - Class for container of the submenu                     *
-                    // - Class for accordion body                               *
-                    // - Class for accordion header                             *
-                    // - Selector for containers to close to start              *
-                    //   e.g., .container-class:not(.exclusion-class)           *
-                    // -------------------------------------------------------- *
+  // ******************************************************** *
+  // Initialize Menu method                                   *
+  // Set listeners for accordion menu sections.               *
+  // Accepts CSS selectors for:                               *
+  // - Class for container of the submenu                     *
+  // - Class for accordion body                               *
+  // - Class for accordion header                             *
+  // - Selector for containers to close to start              *
+  //   e.g., .container-class:not(.exclusion-class)           *
+  // -------------------------------------------------------- *
   init_menu(pAllContainers = '.nav-subcontainer', pBody = '.nav-sublist', pHeader = '.nav-subheader', pInitContainers = null) {
     this.opBlock = pAllContainers;
     this.opTrigger = pHeader;
@@ -152,12 +153,15 @@ class mpc_menuManager {
       let tParseLoc = ((this.keepTheIndex) || (location.pathname.search(defName) == -1))
         ? location.pathname
         : location.pathname.slice(0, location.pathname.search(defName));
-      let tCurrMenu = this.menuElemsAll[0].closest('nav');
+      // if no menu, exit to prevent console clutter              *
+      if (this.menuElemsAll.length < 1)
+        return;
+      let tCurrMenu = this.menuElemsAll[0] ? this.menuElemsAll[0].closest('nav') : null;
       let tTargLink = tCurrMenu.querySelector('[href="' + tParseLoc + '"]');
       if (tTargLink) {
         tTargLink.parentElement.classList.add(this.activeClass);
       }
-                    // close menu sections on page load                         *
+      // close menu sections on page load                         *
       this.menuElems2Close?.forEach((el) => {
         if (!(el.querySelector('.active'))) {
           el.classList.remove(this.openClass);
@@ -165,8 +169,8 @@ class mpc_menuManager {
           el.querySelector(pBody).classList.add(this.hiddenClass);
         }
       });
-                    // make sure menu headers can be tabbed to                  *
-                    // set click listener and focus listeners                   *
+      // make sure menu headers can be tabbed to                  *
+      // set click listener and focus listeners                   *
       this.menuElemsAll?.forEach((el) => {
         el.setAttribute('tabindex', '0');
         el.addEventListener('click', (ev) => {
@@ -211,12 +215,12 @@ class mpc_menuManager {
       elTrigger?.addEventListener('click', () => {
         this.state_change('toggle', 'mobile', elContainer, elTrigger, elBody);
       });
-      elBody.addEventListener('focusin', () => {
+      elBody?.addEventListener('focusin', () => {
         if (!this.mouseTrigger) {
           this.state_change('open', useMobile, elContainer, elTrigger, elBody);
         }
       });
-      elBody.addEventListener('focusout', () => {
+      elBody?.addEventListener('focusout', () => {
         if (!this.mouseTrigger) {
           this.state_change('close', useMobile, elContainer, elTrigger, elBody);
         }
