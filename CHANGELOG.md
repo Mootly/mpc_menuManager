@@ -2,12 +2,17 @@
 
 For [MoosePlum Menu Manager](https://github.com/Mootly/mpc_menuManager).
 
+## 1.0.3 — 2025/05/14
+
+### Fixed
+
+* Corrected open state menu icon on page load.
+
 ## 1.0.2 — 2025/04/23
 
 ### Fixed
 
 * Submenu handling method now exits if no submenu.
-
 
 ## 1.0.1 — 2025/03/10
 

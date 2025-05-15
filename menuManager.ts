@@ -1,8 +1,8 @@
 /** --- Menu Visibility Manager ----------------------------------------------- *
- * mpc_menuManager 1.0.2
+ * mpc_menuManager 1.0.3
  * @copyright 2025 Mootly Obviate -- See /LICENSE.md
  * @license   MIT
- * @version   1.0.2
+ * @version   1.0.3
  * ---------------------------------------------------------------------------- *
  *  Automates accordion menus and hiding menus under icons for mobile devices.
  *  For usability reasons, menus should start open then by script.
@@ -50,6 +50,7 @@
  * pContainer | mull     | ID of the container of the two above, if needed.
  *
  * --- Revision History ------------------------------------------------------- *
+ * 2025-05-14 | Corrected open state icon on load.
  * 2025-04-23 | Added exit when no submenus to process.
  * 2025-03-10 | Changed Load to DOMContentLoaded handler to avoid edge cases.
  *            | Note: This might create different edge cases for this script.
@@ -194,6 +195,9 @@ class mpc_menuManager {
           el.classList.remove(this.openClass);
           el.classList.add(this.closedClass);
           el.querySelector(pBody).classList.add(this.hiddenClass);
+        } else {
+          el.classList.add(this.openClass);
+          el.classList.remove(this.closedClass);
         }
       });
                     // make sure menu headers can be tabbed to                  *
